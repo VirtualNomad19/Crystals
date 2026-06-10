@@ -24,44 +24,14 @@ endfunction
 //
 //----------------------------------------------------------------------
 
-function FieldCheckHorizontal(Field ref as TField,Crystal ref as TCrystal,x as integer,y as integer,Range as integer,Value as integer)
+function FieldCheckIndex(FieldIndex as integer,Index as integer)
 	
-	local Found as integer
+	local Value as integer
 	
-	Found = FALSE
-	/*
-	if x-Range >= 0
-		if Field.Array[x-Range,y].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-			Value = Value + 1
-			Found = TRUE
-		endif
-	endif
-	*/
-	if x+Range <= Field.Array.Length
-		if Field.Array[x+Range,y].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-			Value = Value + 1
-			Found = TRUE
-		endif
-	endif
+	Value = FALSE
 	
-	if Found = TRUE
-		Value = FieldCheckHorizontal(Field,Crystal,x,y,Range+1,Value)
-	endif
-	
-	if Value > 2
-		Crystal.Explode = TRUE
-		/*
-		if x-Range >= 0
-			if Field.Array[x-Range,y].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-				Field.Array[x-Range,y].Explode = TRUE
-			endif
-		endif
-		*/
-		if x+Range <= Field.Array.Length
-			if Field.Array[x+Range,y].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-				Field.Array[x+Range,y].Explode = TRUE
-			endif
-		endif
+	if FieldIndex = Index or FieldIndex = RAINBOWINDEX
+		Value = TRUE
 	endif
 	
 endfunction Value
@@ -70,139 +40,199 @@ endfunction Value
 //
 //----------------------------------------------------------------------
 
-function FieldCheckVertical(Field ref as TField,Crystal ref as TCrystal,x as integer,y as integer,Range as integer,Value as integer)
+function FieldCheck(Field ref as TField,Crystal ref as TCrystal,x as integer,y as integer,RangeX as integer,RangeY as integer)
 	
 	local Found as integer
 	
-	Found = FALSE
-	/*
-	if y-Range >= 0
-		if Field.Array[x,y-Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-			Value = Value + 1
-			Found = TRUE
-		endif
-	endif
-	*/
-	if y+Range <= Field.Array[0].Length
-		if Field.Array[x,y+Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-			Value = Value + 1
+	if x+RangeX >= 0 and X+RangeX <= Field.Array.Length and y+RangeY >= 0 and y+RangeY <= Field.Array[0].Length
+		if FieldCheckIndex(Field.Array[x+RangeX,y+RangeY].ProtoCrystalIndex,Crystal.ProtoCrystalIndex) = TRUE
 			Found = TRUE
 		endif
 	endif
 	
-	if Found = TRUE
-		Value = FieldCheckVertical(Field,Crystal,x,y,Range+1,Value)
-	endif
-	
-	if Value > 2
-		Crystal.Explode = TRUE
-		/*
-		if y-Range >= 0
-			if Field.Array[x,y-Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-				Field.Array[x,y-Range].Explode = TRUE
-			endif
-		endif
-		*/
-		if y+Range <= Field.Array[0].Length
-			if Field.Array[x,y+Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-				Field.Array[x,y+Range].Explode = TRUE
-			endif
-		endif
-	endif
-	
-endfunction Value
+endfunction Found
 
 //----------------------------------------------------------------------
 //
 //----------------------------------------------------------------------
 
-function FieldCheckDiagonalLeft(Field ref as TField,Crystal ref as TCrystal,x as integer,y as integer,Range as integer,Value as integer)
+function FieldCheckHorizontal(Field ref as TField,Crystal ref as TCrystal,x as integer,y as integer)
 	
-	local Found as integer
+	local RangeX as integer
+	local RangeY as integer
+	local Count as integer
+	local i as integer
+	local PositionList as TPos[-1]
+	local Position as TPos
 	
-	Found = FALSE
-	/*
-	if x-Range >= 0 and y-Range >= 0
-		if Field.Array[x-Range,y-Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-			Value = Value + 1
-			Found = TRUE
-		endif
-	endif
-	*/
-	if x+Range <= Field.Array.Length and y+Range <= Field.Array[0].Length
-		if Field.Array[x+Range,y+Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-			Value = Value + 1
-			Found = TRUE
-		endif
-	endif
+	Count = 1
+	RangeX = 1
+	RangeY = 0
 	
-	if Found = TRUE
-		Value = FieldCheckDiagonalLeft(Field,Crystal,x,y,Range+1,Value)
-	endif
+	while FieldCheck(Field,Crystal,x,y,RangeX,RangeY)
+		Position.X = x + RangeX
+		Position.Y = y + RangeY
+		PositionList.Insert(Position)
+		inc RangeX
+		inc Count
+	endwhile
 	
-	if Value > 2
+	RangeX = -1
+	
+	while FieldCheck(Field,Crystal,x,y,RangeX,RangeY)
+		Position.X = x + RangeX
+		Position.Y = y + RangeY
+		PositionList.Insert(Position)
+		dec RangeX
+		inc Count
+	endwhile
+	
+	if Count > 2
 		Crystal.Explode = TRUE
-		/*
-		if x-Range >= 0 and y-Range >= 0
-			if Field.Array[x-Range,y-Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-				Field.Array[x-Range,y-Range].Explode = TRUE
-			endif
-		endif
-		*/
-		if x+Range <= Field.Array.Length and y+Range <= Field.Array[0].Length
-			if Field.Array[x+Range,y+Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-				Field.Array[x+Range,y+Range].Explode = TRUE
-			endif
-		endif
+		for i = 0 to PositionList.Length
+			Field.Array[PositionList[i].x,PositionList[i].y].Explode = TRUE
+		next
 	endif
 	
-endfunction Value
+endfunction Count
 
 //----------------------------------------------------------------------
 //
 //----------------------------------------------------------------------
 
-function FieldCheckDiagonalRight(Field ref as TField,Crystal ref as TCrystal,x as integer,y as integer,Range as integer,Value as integer)
+function FieldCheckVertical(Field ref as TField,Crystal ref as TCrystal,x as integer,y as integer)
 	
-	local Found as integer
+	local RangeX as integer
+	local RangeY as integer
+	local Count as integer
+	local i as integer
+	local PositionList as TPos[-1]
+	local Position as TPos
 	
-	Found = FALSE
-	/*
-	if x-Range >= 0 and y+Range <= Field.Array[0].Length
-		if Field.Array[x-Range,y+Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-			Value = Value + 1
-			Found = TRUE
-		endif
-	endif
-	*/
-	if x+Range <= Field.Array.Length and y-Range >= 0
-		if Field.Array[x+Range,y-Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-			Value = Value + 1
-			Found = TRUE
-		endif
-	endif
+	Count = 1
+	RangeX = 0
+	RangeY = 1
 	
-	if Found = TRUE
-		Value = FieldCheckDiagonalRight(Field,Crystal,x,y,Range+1,Value)
-	endif
+	while FieldCheck(Field,Crystal,x,y,RangeX,RangeY)
+		Position.X = x + RangeX
+		Position.Y = y + RangeY
+		PositionList.Insert(Position)
+		inc RangeY
+		inc Count
+	endwhile
 	
-	if Value > 2
+	RangeY = -1
+	
+	while FieldCheck(Field,Crystal,x,y,RangeX,RangeY)
+		Position.X = x + RangeX
+		Position.Y = y + RangeY
+		PositionList.Insert(Position)
+		dec RangeY
+		inc Count
+	endwhile
+	
+	if Count > 2
 		Crystal.Explode = TRUE
-		/*
-		if x-Range >= 0 and y+Range <= Field.Array[0].Length
-			if Field.Array[x-Range,y+Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-				Field.Array[x-Range,y+Range].Explode = TRUE
-			endif
-		endif
-		*/
-		if x+Range <= Field.Array.Length and y-Range >= 0
-			if Field.Array[x+Range,y-Range].ProtoCrystalIndex = Crystal.ProtoCrystalIndex
-				Field.Array[x+Range,y-Range].Explode = TRUE
-			endif
-		endif
+		for i = 0 to PositionList.Length
+			Field.Array[PositionList[i].x,PositionList[i].y].Explode = TRUE
+		next
 	endif
 	
-endfunction Value
+endfunction Count
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function FieldCheckDiagonalLeft(Field ref as TField,Crystal ref as TCrystal,x as integer,y as integer)
+	
+	local RangeX as integer
+	local RangeY as integer
+	local Count as integer
+	local i as integer
+	local PositionList as TPos[-1]
+	local Position as TPos
+	
+	Count = 1
+	RangeX = 1
+	RangeY = 1
+	
+	while FieldCheck(Field,Crystal,x,y,RangeX,RangeY)
+		Position.X = x + RangeX
+		Position.Y = y + RangeY
+		PositionList.Insert(Position)
+		inc RangeX
+		inc RangeY
+		inc Count
+	endwhile
+	
+	RangeX = -1
+	RangeY = -1
+	
+	while FieldCheck(Field,Crystal,x,y,RangeX,RangeY)
+		Position.X = x + RangeX
+		Position.Y = y + RangeY
+		PositionList.Insert(Position)
+		dec RangeX
+		dec RangeY
+		inc Count
+	endwhile
+	
+	if Count > 2
+		Crystal.Explode = TRUE
+		for i = 0 to PositionList.Length
+			Field.Array[PositionList[i].x,PositionList[i].y].Explode = TRUE
+		next
+	endif
+	
+endfunction Count
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function FieldCheckDiagonalRight(Field ref as TField,Crystal ref as TCrystal,x as integer,y as integer)
+	
+	local RangeX as integer
+	local RangeY as integer
+	local Count as integer
+	local i as integer
+	local PositionList as TPos[-1]
+	local Position as TPos
+	
+	Count = 1
+	RangeX = -1
+	RangeY = 1
+	
+	while FieldCheck(Field,Crystal,x,y,RangeX,RangeY)
+		Position.X = x + RangeX
+		Position.Y = y + RangeY
+		PositionList.Insert(Position)
+		dec RangeX
+		inc RangeY
+		inc Count
+	endwhile
+	
+	RangeX = 1
+	RangeY = -1
+	
+	while FieldCheck(Field,Crystal,x,y,RangeX,RangeY)
+		Position.X = x + RangeX
+		Position.Y = y + RangeY
+		PositionList.Insert(Position)
+		inc RangeX
+		dec RangeY
+		inc Count
+	endwhile
+	
+	if Count > 2
+		Crystal.Explode = TRUE
+		for i = 0 to PositionList.Length
+			Field.Array[PositionList[i].x,PositionList[i].y].Explode = TRUE
+		next
+	endif
+	
+endfunction Count
 
 //----------------------------------------------------------------------
 //
@@ -222,7 +252,7 @@ function FieldCountCheck(Field ref as TField)
 		for k = 0 to Field.Array[0].Length
 			if Field.Array[i,k].ProtoCrystalIndex >= 0
 				if Field.Array[i,k].Explode = TRUE
-					Value = Value +1
+					inc Value
 				endif
 			endif
 		next k
@@ -238,7 +268,43 @@ endfunction Count
 //
 //----------------------------------------------------------------------
 
-function FieldCheck(Field ref as TField)
+function FieldMagicCheck(Field ref as TField)
+	
+	local Value as integer
+	local i as integer
+	local k as integer
+
+	Value = -1
+	
+	for i = 0 to Field.Array.Length
+		for k = 0 to Field.Array[0].Length
+			if Field.Array[i,k].ProtoCrystalIndex = MAGICINDEX
+				if k < Field.Array[0].Length
+					if Field.Array[i,k+1].ProtoCrystalIndex <> MAGICINDEX
+						Value = Field.Array[i,k+1].ProtoCrystalIndex
+					endif
+				endif
+			endif
+		next k
+	next i
+	
+	if Value >= 0
+		for i = 0 to Field.Array.Length
+			for k = 0 to Field.Array[0].Length
+				if Field.Array[i,k].ProtoCrystalIndex = Value
+					Field.Array[i,k].Explode = TRUE
+				endif
+			next k
+		next i
+	endif
+	
+endfunction	
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function FieldCheckAll(Field ref as TField)
 	
 	local Count as integer
 	local Value as integer
@@ -248,21 +314,23 @@ function FieldCheck(Field ref as TField)
 	Value = FALSE
 	Count = 0
 	
+	FieldMagicCheck(Field)
+	 
 	for i = 0 to Field.Array.Length
 		for k = 0 to Field.Array[0].Length
 			
 			if Field.Array[i,k].ProtoCrystalIndex >= 0
 			
-				if FieldCheckHorizontal(Field,Field.Array[i,k],i,k,1,1) > 2
+				if FieldCheckHorizontal(Field,Field.Array[i,k],i,k) > 2
 					Value = TRUE
 				endif
-				if FieldCheckVertical(Field,Field.Array[i,k],i,k,1,1) > 2
+				if FieldCheckVertical(Field,Field.Array[i,k],i,k) > 2
 					Value = TRUE
 				endif
-				if FieldCheckDiagonalLeft(Field,Field.Array[i,k],i,k,1,1) > 2
+				if FieldCheckDiagonalLeft(Field,Field.Array[i,k],i,k) > 2
 					Value = TRUE
 				endif
-				if FieldCheckDiagonalRight(Field,Field.Array[i,k],i,k,1,1) > 2
+				if FieldCheckDiagonalRight(Field,Field.Array[i,k],i,k) > 2
 					Value = TRUE
 				endif
 			
@@ -339,6 +407,59 @@ function FieldDropCrystals(Field ref as TField)
 	next i
 	
 endfunction Value
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function FieldLineCreate(Field ref as TField,List ref as TProtoCrystalList,Difficulty as integer,Index as integer)
+	
+	local i as integer
+	
+	for i = 0 to Field.Array.Length
+		if Field.Array[i,Index].ProtoCrystalIndex = -1
+			Field.Array[i,Index].ProtoCrystalIndex = random(0,List.Array.Length-1-(MAXDIFFICULTY-Difficulty+1))
+		endif
+	next i
+	
+endfunction
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function FieldLineCreateBottom(Field ref as TField,List ref as TProtoCrystalList,Difficulty as integer)
+	
+	local i as integer
+	local k as integer
+	local Index as integer
+	local Found as integer
+
+	Index = Field.Array[i].Length
+	
+	Found = FALSE
+	
+	for i = 0 to Field.Array.Length
+		if Field.Array[i,0].ProtoCrystalIndex > -1
+			Found = TRUE
+		endif
+	next i
+	
+	if Found = FALSE
+		
+		for i = 0 to Field.Array.Length
+			for k = 1 to Field.Array[i].Length
+				Field.Array[i,k-1].ProtoCrystalIndex = Field.Array[i,k].ProtoCrystalIndex
+			next k
+		next i
+		
+		for i = 0 to Field.Array.Length
+				Field.Array[i,Index].ProtoCrystalIndex = random(0,List.Array.Length-1-(MAXDIFFICULTY-Difficulty+1))
+		next i
+
+	endif
+	
+endfunction not Found
 
 //----------------------------------------------------------------------
 //

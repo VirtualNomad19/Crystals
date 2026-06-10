@@ -10,6 +10,23 @@ type TFilePath
 	
 endtype
 
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function FilePathSet(Source as TFilePath)
+
+	local Value as integer
+
+	Value = FALSE
+	
+	if SetFolder(ReplaceString(Source.Path,"\","/",-1))
+		Value = TRUE
+	endif
+
+endfunction Value
+
 //----------------------------------------------------------------------
 //
 //----------------------------------------------------------------------

@@ -1,12 +1,39 @@
 
 #constant FIELDSIZE 42
-#constant DIFFICULTY_MAX 5
+
 #constant MOVE_TIMESPAN 10
 #constant MOVE_RANGE 10
+
+#constant MAXCHARS 4
+
+#constant MAXHIGHSCOREITEMS 9
+#constant MAXHIGHSCORETABLE 7
+
+#constant TABLECASCADE 7
+#constant TABLELEVEL 6
+#constant TABLEGEMS 5
+
+#constant MAXDIFFICULTY 4
+
+#constant DIFFICULTY_ULTRA 4
+#constant DIFFICULTY_HARD 3
+#constant DIFFICULTY_ADVANCED 2
+#constant DIFFICULTY_MEDIUM 1
+#constant DIFFICULTY_EASY 0
+
+#constant RAINBOWINDEX 9
+#constant MAGICINDEX 8
 
 //----------------------------------------------------------------------
 //
 //----------------------------------------------------------------------
+
+type TPos
+	
+	x as integer
+	y as integer
+	
+endtype
 
 type TPosition
 	
@@ -135,19 +162,41 @@ type THighScoreList
 	fcy as float
 	
 	TxtHighScore as integer
-	TxtDifficulty as integer
+	TxtTable as integer
 	
 	VisibleTimer as TTime
 	AnimationTimer as TTime
 	
+	IsNew as integer
 	IsInit as integer
 	IsAnimating as integer
 	IsPause as integer
 	
-	Difficulty as integer
+	Table as integer
 	
 	Score as THighScore[-1,-1]
 	TxtFieldsScore as TTxtHighScore[9]
+	
+endtype
+
+type TSummary
+	
+	IsInit as integer
+	
+	fcx as float
+	fcy as float
+	
+	EnterCharIndex as integer
+	CharList as String[-1]
+	Char as integer[MAXCHARS]
+	LastChars as integer[MAXCHARS]
+	HighScore as THighScore
+	
+	Difficulty as integer
+	AbsoluteScore as integer
+	Gems as integer
+	Level as integer
+	HighestCascade as integer
 	
 endtype
 
@@ -164,6 +213,7 @@ type TGame
 	IsPause as integer
 	IsBlockMoving as integer
 	IsFieldExploding as integer
+	IsNewHighScore as integer
 	
 	Background as TBackground
 	
@@ -180,17 +230,23 @@ type TGame
 	CollectedScore as integer
 	
 	Cascade as integer
+	HighestCascade as integer
 	Gems as integer
 	Level as integer
+	
+	NewLevel as integer
+	LastLevel as integer
 	
 	Difficulty as integer
 	
 	Highscore as THighScoreList
+	Summary as TSummary
 	
 	TextGems as integer
 	TextLevel as integer
 	TextStart as integer
 	TextPause as integer
+	TextEnterName as integer
 	
 	TxtGems as integer
 	TxtLevel as integer
@@ -214,10 +270,20 @@ type TGame
 	TxtSummaryLevel as integer
 	TextSummaryGems as integer
 	TxtSummaryGems as integer
+	TextSummaryCascade as integer
+	TxtSummaryCascade as integer
+	
+	TxtSummaryChar as integer[MAXCHARS]
+	TxtSummerySelectChar as integer
+	TimerSummeryText as TTime
+	SwitchSummeryText as integer
 	
 	NextLevelSoundID as integer
 	ExplodeSoundID as integer
+	BlockSoundID as integer
 	MenuSoundID as integer
+	MenuSelectSoundID as integer
+	ScoreSoundID as integer
 	
 endtype
 

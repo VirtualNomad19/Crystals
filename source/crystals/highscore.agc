@@ -8,6 +8,15 @@ function HighScoreCreate(HighScoreList ref as THighScoreList,fcx as float,fcy as
 	HighScoreList.fcx = fcx
 	HighScoreList.fcy = fcy
 	
+	HighScoreList.Table = 0
+	HighScoreList.IsInit = TRUE
+	HighScoreList.IsNew = TRUE
+	
+	if HighScoreLoad(HighScoreList) = FALSE
+		HighScoreInit(HighScoreList)
+		HighScoreSave(HighScoreList)
+	endif
+	
 endfunction
 
 //----------------------------------------------------------------------
@@ -20,12 +29,20 @@ function HighScoreInit(HighScoreList ref as THighScoreList)
 	local k as integer
 	local Score as THighScore
 	
-	HighScoreList.Score.Length = DIFFICULTY_MAX-1
+	HighScoreClear(HighScoreList)
+	
+	HighScoreList.Score.Length = MAXHIGHSCORETABLE
 	
 	for i = 0 to HighScoreList.Score.Length
-		for k = 10 to 1 step -1
+		for k = MAXHIGHSCOREITEMS+1 to 1 step -1
 			Score.Name = "XXX"
-			Score.Score = k*10000
+			if i <= MAXDIFFICULTY
+				Score.Score = k*100000*(i+1)
+			else
+				if i = TABLEGEMS then Score.Score = k*1000
+				if i = TABLELEVEL then Score.Score = k*10
+				if i = TABLECASCADE then Score.Score = k*2
+			endif			
 			HighScoreList.Score[i].Insert(Score)
 		next k
 	next i
@@ -56,17 +73,72 @@ function HighScoreSet(HighScoreList ref as THighScoreList)
 	
 	local i as integer
 	
-	if HighScoreList.Difficulty <= HighScoreList.Score.Length
-		if HighScoreList.TxtFieldsScore.Length = HighScoreList.Score[HighScoreList.Difficulty].Length
-			for i = 0 to HighScoreList.Score[HighScoreList.Difficulty].Length
-				SetTextString(HighScoreList.TxtFieldsScore[i].TxtName,HighScoreList.Score[HighScoreList.Difficulty,i].Name)
-				SetTextString(HighScoreList.TxtFieldsScore[i].TxtScore,str(HighScoreList.Score[HighScoreList.Difficulty,i].Score))
+	if HighScoreList.Table <= HighScoreList.Score.Length
+		//if HighScoreList.TxtFieldsScore.Length = HighScoreList.Score[HighScoreList.Table].Length
+			for i = 0 to MAXHIGHSCOREITEMS //HighScoreList.Score[HighScoreList.Table].Length
+				SetTextString(HighScoreList.TxtFieldsScore[i].TxtName,HighScoreList.Score[HighScoreList.Table,i].Name)
+				SetTextString(HighScoreList.TxtFieldsScore[i].TxtScore,str(HighScoreList.Score[HighScoreList.Table,i].Score))
 			next i
-		endif
+		//endif
 	endif
 	
 endfunction
 
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function HighScoreGetTableName(Index as integer)
+	
+	local Value as string
+	
+	Value = ""
+	
+	select Index
+		case DIFFICULTY_EASY
+			Value = "hs_table_easy.json"
+		endcase
+		case DIFFICULTY_MEDIUM
+			Value = "hs_table_medium.json"
+		endcase
+		case DIFFICULTY_ADVANCED
+			Value = "hs_table_advanced.json"
+		endcase
+		case DIFFICULTY_HARD
+			Value = "hs_table_hard.json"
+		endcase
+		case DIFFICULTY_ULTRA
+			Value = "hs_table_ultra.json"
+		endcase
+		case TABLEGEMS
+			Value = "hs_table_gems.json"
+		endcase
+		case TABLELEVEL
+			Value = "hs_table_level.json"
+		endcase
+		case TABLECASCADE
+			Value = "hs_table_cascade.json"
+		endcase
+	endselect
+	
+endfunction Value
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function HighScoreTableSave(Table ref as THighScore[],TableName as string)
+	
+	local File as TFilePath
+	
+	File.Path = "/media"
+	File.Name = TableName
+	
+	if FilePathSet(File) = TRUE
+		Table.Save(File.Name)
+	endif
+	
+endfunction
 
 //----------------------------------------------------------------------
 //
@@ -74,18 +146,36 @@ endfunction
 
 function HighScoreSave(HighScoreList ref as THighScoreList)
 	
+	local i as integer
+	
+	for i = 0 to MAXHIGHSCORETABLE
+		HighScoreTableSave(HighScoreList.Score[i],HighScoreGetTableName(i))
+	next i
+
+endfunction
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function HighScoreTableLoad(Table ref as THighScore[],TableName as string)
+	
 	local File as TFilePath
+	local Value as integer
 	
 	File.Path = "/media"
-	File.Name = "highscore.json"
+	File.Name = TableName
+	
+	Value = FALSE
 	
 	if FilePathSetAndCheck(File) = TRUE
-		
-		HighScoreList.Score.Save(File.Name)
-		
+		Table.Load(File.Name)
+		if Table.Length = MAXHIGHSCOREITEMS
+			Value = TRUE
+		endif
 	endif
 	
-endfunction
+endfunction Value
 
 //----------------------------------------------------------------------
 //
@@ -93,22 +183,44 @@ endfunction
 
 function HighScoreLoad(HighScoreList ref as THighScoreList)
 	
-	local File as TFilePath
+	local Table as THighScore[]
+	local i as integer
+	local Value as integer
+	local Index as integer
 	
-	File.Path = "/media"
-	File.Name = "highscore.json"
+	HighScoreClear(HighScoreList)
+	Value = TRUE
 	
-	if FilePathSetAndCheck(File) = TRUE
-		
-		HighScoreClear(HighScoreList)
-		HighScoreList.Score.Load(File.Name)
-		
-	else
-		
-		HighScoreInit(HighScoreList)
-		HighScoreSave(HighScoreList)
-		
-	endif
+	for i = 0 to MAXHIGHSCORETABLE	
+		Table.Length = -1
+		if HighScoreTableLoad(Table,HighScoreGetTableName(i)) = TRUE
+			HighScoreList.Score.Insert(Table)
+			Index = HighScoreList.Score.Length
+			if HighScoreList.Score[Index].Length <> MAXHIGHSCOREITEMS
+				//Value = FALSE
+				while HighScoreList.Score[Index].Length > MAXHIGHSCOREITEMS
+					HighScoreList.Score[Index].Remove(HighScoreList.Score[Index].Length)
+				endwhile
+			endif
+		else
+			VALUE = FALSE
+		endif
+	next i
+	
+endfunction Value
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function HighScoreAnimateReset(HighScoreList ref as THighScoreList)
+	
+	local i as integer
+	
+	for i = 0 to HighScoreList.TxtFieldsScore.Length
+		SetTextX(HighScoreList.TxtFieldsScore[i].TxtName,HighScoreList.fcx+450-125+i*50)
+		SetTextX(HighScoreList.TxtFieldsScore[i].TxtScore,HighScoreList.fcx+450+125+i*50)
+	next i
 	
 endfunction
 
@@ -124,17 +236,18 @@ function HighScoreAnimate(HighScoreList ref as THighScoreList,Now as integer)
 		TimeReset(HighScoreList.AnimationTimer,Now)
 		if HighScoreList.IsInit = TRUE
 			HighScoreLoad(HighScoreList)
-			HighScoreList.Difficulty = HighScoreList.Difficulty +1
-			if HighScoreList.Difficulty >= DIFFICULTY_MAX
-				HighScoreList.Difficulty = 0
+			if HighScoreList.IsNew = FALSE
+				inc HighScoreList.Table
 			endif
-			for i = 0 to HighScoreList.TxtFieldsScore.Length
-				SetTextX(HighScoreList.TxtFieldsScore[i].TxtName,HighScoreList.fcx+450-125+i*50)
-				SetTextX(HighScoreList.TxtFieldsScore[i].TxtScore,HighScoreList.fcx+450+125+i*50)
-			next i
+			if HighScoreList.Table > MAXHIGHSCORETABLE
+				HighScoreList.Table = 0
+			endif
+			HighScoreAnimateReset(HighScoreList)
 			HighScoreSet(HighScoreList)
 			HighScoreList.IsInit = FALSE
+			HighScoreList.IsNew = FALSE
 			HighScoreList.IsAnimating = TRUE
+			TimeReset(HighScoreList.VisibleTimer,Now)
 		else
 			if HighScoreList.IsAnimating = TRUE			
 				for i = 0 to HighScoreList.TxtFieldsScore.Length
@@ -169,5 +282,139 @@ endfunction
 //----------------------------------------------------------------------
 //
 //----------------------------------------------------------------------
+
+function HighScoreCheckTable(Table ref as THighScore[],Score as integer)
+
+	local Found as integer
+	local Value as integer
+	local i as integer
+	
+	Value = -1
+	
+	i = Table.Length
+	Found = TRUE
+	while Found = TRUE and i <= Table.Length
+		if Score > Table[i].Score
+			Value = i
+			dec i
+		else
+			Found = FALSE
+		endif
+	endwhile
+	
+endfunction Value
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function HighScoreCheck(HighScoreList ref as THighScoreList,Summary ref as TSummary)
+	
+	local Value as integer
+	
+	Value = FALSE
+	
+	if HighScoreCheckTable(HighScoreList.Score[Summary.Difficulty],Summary.AbsoluteScore) >= 0 then Value = TRUE
+	if HighScoreCheckTable(HighScoreList.Score[TABLEGEMS],Summary.Gems) >= 0 then Value = TRUE
+	if HighScoreCheckTable(HighScoreList.Score[TABLELEVEL],Summary.Level) >= 0 then Value = TRUE
+	if HighScoreCheckTable(HighScoreList.Score[TABLECASCADE],Summary.HighestCascade) >= 0 then Value = TRUE
+
+endfunction Value
+
+
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function HighScoreTableInsertName(TableName as string,NewScore ref as THighScore)
+
+	local Value as integer
+	local Table as THighScore[]
+	
+	if HighScoreTableLoad(Table,TableName) = TRUE
+		Value = HighScoreCheckTable(Table,NewScore.Score)
+		if Value > -1
+			Table.Insert(NewScore,Value)
+			Table.Remove(Table.Length)
+			HighScoreTableSave(Table,TableName)
+		endif
+	endif
+	
+endfunction Value
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function HighScoreInsertName(HighScoreList ref as THighScoreList,Summary ref as TSummary)
+	
+	SummaryHighscoreSetName(Summary)
+	
+	SummaryHighscoreSetScore(Summary,Summary.Difficulty)
+	if HighScoreTableInsertName(HighScoreGetTableName(Summary.Difficulty),Summary.HighScore) > -1
+		HighScoreList.Table = Summary.Difficulty
+	endif
+
+	SummaryHighscoreSetScore(Summary,TABLECASCADE)
+	if HighScoreTableInsertName(HighScoreGetTableName(TABLECASCADE),Summary.HighScore) > -1
+		HighScoreList.Table = TABLECASCADE
+	endif
+	
+	SummaryHighscoreSetScore(Summary,TABLELEVEL)
+	if HighScoreTableInsertName(HighScoreGetTableName(TABLELEVEL),Summary.HighScore) > -1
+		HighScoreList.Table = TABLELEVEL
+	endif
+	
+	SummaryHighscoreSetScore(Summary,TABLEGEMS)
+	if HighScoreTableInsertName(HighScoreGetTableName(TABLEGEMS),Summary.HighScore) > -1
+		HighScoreList.Table = TABLEGEMS
+	endif
+	
+endfunction
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function HighScoreShiftLeft(HighScoreList ref as THighScoreList)
+
+	if HighScoreList.Table > 0
+		dec HighScoreList.Table
+	else
+		HighScoreList.Table = MAXHIGHSCORETABLE
+	endif
+	
+	HighScoreList.IsInit = TRUE
+	HighScoreList.IsNew = TRUE
+	HighScoreList.IsPause = FALSE
+	HighScoreList.IsAnimating = FALSE
+	
+endfunction
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+function HighScoreShiftRight(HighScoreList ref as THighScoreList)	
+
+	if HighScoreList.Table < MAXHIGHSCORETABLE
+		inc HighScoreList.Table
+	else
+		HighScoreList.Table = 0
+	endif
+	
+	HighScoreList.IsInit = TRUE
+	HighScoreList.IsNew = TRUE
+	HighScoreList.IsPause = FALSE
+	HighScoreList.IsAnimating = FALSE
+		
+endfunction
+
+//----------------------------------------------------------------------
+//
+//----------------------------------------------------------------------
+
+
 
 

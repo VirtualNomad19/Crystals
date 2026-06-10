@@ -78,13 +78,35 @@ endfunction
 //
 //----------------------------------------------------------------------
 
-function BlockGenerate(Block ref as TBlock,List ref as TProtoCrystalList,Difficulty as integer)
+function BlockGenerate(Block ref as TBlock,List ref as TProtoCrystalList,Difficulty as integer,Level as integer)
 	
 	local i as integer
 	
 	for i = 0 to Block.Array.Length
-		Block.Array[i].ProtoCrystalIndex = random(0,List.Array.Length-1-(DIFFICULTY_MAX-Difficulty))
+		Block.Array[i].ProtoCrystalIndex = random(0,List.Array.Length-1-(MAXDIFFICULTY-Difficulty+1))
 	next i
+	
+	select random(0,1)
+		
+		case 0
+			for i = 0 to Block.Array.Length
+				if random(0,100) < 13
+					Block.Array[i].ProtoCrystalIndex = RAINBOWINDEX
+				endif
+			next i
+		endcase
+		
+		case 1
+			if mod(Level,10) = 0 and Level > 1
+				if random(0,100) < 13
+					for i = 0 to Block.Array.Length
+						Block.Array[i].ProtoCrystalIndex = MAGICINDEX
+					next i
+				endif
+			endif
+		endcase
+		
+	endselect
 	
 endfunction
 
@@ -167,9 +189,11 @@ endfunction
 function MovebleBlockMoveLeft(MovebleBlock ref as TMovebleBlock,Field ref as TField,Now as integer)
 
 	if MovebleBlock.FieldPosition.x > 0
-		if Field.Array[MovebleBlock.FieldPosition.x-1,MovebleBlock.FieldPosition.y+2].ProtoCrystalIndex < 0
-			MovebleBlock.BoardPosition.x = MovebleBlock.BoardPosition.x - FIELDSIZE
-			MovebleBlock.FieldPosition.x = MovebleBlock.FieldPosition.x - 1
+		if MovebleBlock.FieldPosition.y+1 >= 0 and MovebleBlock.FieldPosition.y < Field.Array[0].Length
+			if Field.Array[MovebleBlock.FieldPosition.x-1,MovebleBlock.FieldPosition.y+1].ProtoCrystalIndex < 0
+				MovebleBlock.BoardPosition.x = MovebleBlock.BoardPosition.x - FIELDSIZE
+				MovebleBlock.FieldPosition.x = MovebleBlock.FieldPosition.x - 1
+			endif
 		endif
 	endif
 	MovebleBlockPositionRefresh(MovebleBlock)
@@ -183,9 +207,11 @@ endfunction
 function MovebleBlockMoveRight(MovebleBlock ref as TMovebleBlock,Field ref as TField,Now as integer)
 
 	if MovebleBlock.FieldPosition.x < Field.Array.Length
-		if Field.Array[MovebleBlock.FieldPosition.x+1,MovebleBlock.FieldPosition.y+2].ProtoCrystalIndex < 0
-			MovebleBlock.BoardPosition.x = MovebleBlock.BoardPosition.x + FIELDSIZE
-			MovebleBlock.FieldPosition.x = MovebleBlock.FieldPosition.x + 1
+		if MovebleBlock.FieldPosition.y+1 >= 0 and MovebleBlock.FieldPosition.y < Field.Array[0].Length
+			if Field.Array[MovebleBlock.FieldPosition.x+1,MovebleBlock.FieldPosition.y+1].ProtoCrystalIndex < 0
+				MovebleBlock.BoardPosition.x = MovebleBlock.BoardPosition.x + FIELDSIZE
+				MovebleBlock.FieldPosition.x = MovebleBlock.FieldPosition.x + 1
+			endif
 		endif
 	endif
 	MovebleBlockPositionRefresh(MovebleBlock)
@@ -214,6 +240,9 @@ function MovebleBlockSpeedSet(MovebleBlock ref as TMovebleBlock,Level as integer
 		MovebleBlock.MoveSpeed = MovebleBlock.MoveSpeed * 2
 		if MovebleBlock.MoveSpeed < 1
 			MovebleBlock.MoveSpeed = 1
+		endif
+		if MovebleBlock.MoveSpeed > 20
+			MovebleBlock.MoveSpeed = 20
 		endif
 	endif
 
