@@ -175,10 +175,10 @@ function MovebleBlockShuffle(MovebleBlock ref as TMovebleBlock,Now as integer)
 	
 	Crystal as TCrystal
 
-	Crystal = MovebleBlock.Block.Array[2]
-	MovebleBlock.Block.Array[2] = MovebleBlock.Block.Array[1]
-	MovebleBlock.Block.Array[1] = MovebleBlock.Block.Array[0]
-	MovebleBlock.Block.Array[0] = Crystal
+	Crystal = MovebleBlock.Block.Array[0]
+	MovebleBlock.Block.Array[0] = MovebleBlock.Block.Array[1]
+	MovebleBlock.Block.Array[1] = MovebleBlock.Block.Array[2]
+	MovebleBlock.Block.Array[2] = Crystal
 
 endfunction
 

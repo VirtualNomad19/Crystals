@@ -48,7 +48,9 @@ UseNewDefaultFonts(1)
 
 #constant FALSE 0
 #constant TRUE 1
+#constant Device$ GetDeviceBaseName()
 
+#include "controls.agc"
 #include "def_keys.agc"
 #include "def_joypad.agc"
 #include "def_game.agc"
@@ -92,8 +94,9 @@ repeat
 	
 	if Game.IsDifficultySelect = FALSE and Game.IsLost = FALSE
 		if TimeGet(InputTimer,Time.RealNow) > 0
-			if GetRawKeyPressed(KEY_ENTER) = 1 or GetRawJoystickButtonPressed(1,joystickButtonStart) = 1
-				PlaySound(Game.MenuSelectSoundID)
+			//if GetRawKeyPressed(KEY_ENTER) = 1 or GetRawJoystickButtonPressed(1,joystickButtonStart) = 1
+			If GetStartPressed()
+                PlaySound(Game.MenuSelectSoundID)
 				GameInit(Game,Time.RealNow)
 				TimeReset(InputTimer,Time.RealNow)
 			endif
@@ -102,7 +105,7 @@ repeat
 		
 	if Game.IsRunning = TRUE
 		if TimeGet(InputTimer,Time.RealNow) > 0
-			if GetRawKeyPressed(KEY_P) = 1 or GetRawJoystickButtonPressed(1,joystickButtonStart) = 1
+			if GetKeyPressed(KEY_P) or GetJoyPressed(joystickButtonStart)
 				PlaySound(Game.MenuSelectSoundID)
 				GamePause(Game)
 				TimeReset(InputTimer,Time.RealNow)
@@ -113,28 +116,28 @@ repeat
 	if Game.IsRunning = TRUE and Game.IsBlockMoving = TRUE
 		
 		if TimeGet(InputTimer,Time.RealNow) > 0
-			if GetRawKeyPressed(KEY_W) = 1 or GetRawKeyPressed(KEY_UP) = 1 or (TimeGet(InputTimer,Time.RealNow) > 50 and GetRawJoystickY(1) < -0.5) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetRawJoystickButtonPressed(1,joystickButtonCrossUp) = 1) or GetRawJoystickButtonPressed(1,joystickButtonA) = 1
+			if GetKeyPressed(KEY_W) or GetKeyPressed(KEY_UP) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetJoyY() < -0.5) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetJoyPressed(joystickButtonCrossUp) ) or GetJoyPressed(joystickButtonA) = 1
 				MovebleBlockShuffle(Game.CurrentBlock,Time.RealNow)
 				TimeReset(InputTimer,Time.RealNow)
 			endif
 		endif
 		
 		if TimeGet(InputTimer,Time.RealNow) > 0
-			if GetRawKeyPressed(KEY_A) = 1 or GetRawKeyPressed(KEY_LEFT) = 1 or (TimeGet(InputTimer,Time.RealNow) > 50 and GetRawJoystickX(1) < -0.5) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetRawJoystickButtonState(1,joystickButtonCrossLeft) = 1)
+			if GetKeyPressed(KEY_A) or GetKeyPressed(KEY_LEFT) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetJoyX() < -0.5) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetJoyState(joystickButtonCrossLeft) )
 				MovebleBlockMoveLeft(Game.CurrentBlock,Game.Field,Time.RealNow)
 				TimeReset(InputTimer,Time.RealNow)
 			endif
 		endif
 		
 		if TimeGet(InputTimer,Time.RealNow) > 0
-			if GetRawKeyPressed(KEY_D) = 1 or GetRawKeyPressed(KEY_RIGHT) = 1 or (TimeGet(InputTimer,Time.RealNow) > 50 and GetRawJoystickX(1) > 0.5) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetRawJoystickButtonState(1,joystickButtonCrossRight) = 1)
+			if GetKeyPressed(KEY_D) or GetKeyPressed(KEY_RIGHT) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetJoyX() > 0.5) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetJoyState(joystickButtonCrossRight) )
 				MovebleBlockMoveRight(Game.CurrentBlock,Game.Field,Time.RealNow)
 				TimeReset(InputTimer,Time.RealNow)
 			endif
 		endif
 			
 		if TimeGet(InputTimer,Time.RealNow) > 0	
-			if GetRawKeyPressed(KEY_S) = 1 or GetRawKeyPressed(KEY_DOWN) = 1 or (TimeGet(InputTimer,Time.RealNow) > 50 and GetRawJoystickY(1) > 0.5) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetRawJoystickButtonPressed(1,joystickButtonCrossDown) = 1) or GetRawJoystickButtonPressed(1,joystickButtonB) = 1
+			if GetKeyPressed(KEY_S) or GetKeyPressed(KEY_DOWN) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetJoyY() > 0.5) or (TimeGet(InputTimer,Time.RealNow) > 50 and GetJoyPressed(joystickButtonCrossDown) ) or GetJoyPressed(joystickButtonB) 
 				MovebleBlockMoveFast(Game.CurrentBlock)
 				MovebleBlockSpeedSet(Game.CurrentBlock,Game.Level)
 				TimeReset(InputTimer,Time.RealNow)
@@ -147,7 +150,8 @@ repeat
 		if Game.IsDifficultySelect = TRUE
 			
 			if TimeGet(InputTimer,Time.RealNow) > 0
-				if GetRawKeyPressed(KEY_W) = 1 or GetRawKeyPressed(KEY_UP) = 1 or (TimeGet(InputTimer,Time.RealNow) > 120 and GetRawJoystickY(1) < -0.5) or GetRawJoystickButtonPressed(1,joystickButtonCrossUp) = 1
+                //If GetUpPressed() or (TimeGet(InputTimer,Time.RealNow) > 120
+				if GetKeyPressed(KEY_W) or GetKeyPressed(KEY_UP) or (TimeGet(InputTimer,Time.RealNow) > 120 and GetJoyY() < -0.5) or GetJoyPressed(joystickButtonCrossUp)
 					Game.Difficulty = Game.Difficulty +1
 					if Game.Difficulty > MAXDIFFICULTY
 						Game.Difficulty = 0
@@ -158,7 +162,7 @@ repeat
 			endif
 			
 			if TimeGet(InputTimer,Time.RealNow) > 0	
-				if GetRawKeyPressed(KEY_S) = 1 or GetRawKeyPressed(KEY_DOWN) = 1 or (TimeGet(InputTimer,Time.RealNow) > 120 and GetRawJoystickY(1) > 0.5) or GetRawJoystickButtonPressed(1,joystickButtonCrossDown) = 1
+				if GetKeyPressed(KEY_S) = 1 or GetKeyPressed(KEY_DOWN) = 1 or (TimeGet(InputTimer,Time.RealNow) > 120 and GetJoyY() > 0.5) or GetJoyPressed(joystickButtonCrossDown)
 					Game.Difficulty = Game.Difficulty -1
 					if Game.Difficulty < 0
 						Game.Difficulty = MAXDIFFICULTY
@@ -169,7 +173,7 @@ repeat
 			endif
 			
 			if TimeGet(InputTimer,Time.RealNow) > 0
-				if GetRawKeyPressed(KEY_ENTER) = 1 or GetRawJoystickButtonPressed(1,joystickButtonA) = 1 or GetRawJoystickButtonPressed(1,joystickButtonStart) = 1
+				if GetKeyPressed(KEY_ENTER) or GetJoyPressed(joystickButtonA) or GetJoyPressed(joystickButtonStart)
 					PlaySound(Game.MenuSelectSoundID)
 					Game.IsRunning = TRUE
 					TimeReset(InputTimer,Time.RealNow)
@@ -187,7 +191,7 @@ repeat
 			if Game.IsNewHighScore = TRUE
 				
 				if TimeGet(InputTimer,Time.RealNow) > 0
-					if GetRawKeyPressed(KEY_W) = 1 or GetRawKeyPressed(KEY_UP) = 1 or (TimeGet(InputTimer,Time.RealNow) > 75 and GetRawJoystickY(1) < -0.5) or GetRawJoystickButtonPressed(1,joystickButtonCrossUp) = 1
+					if GetKeyPressed(KEY_W) or GetKeyPressed(KEY_UP) or (TimeGet(InputTimer,Time.RealNow) > 75 and GetJoyY() < -0.5) or GetJoyPressed(joystickButtonCrossUp)
 						SummaryEnterNameShiftUp(Game.Summary)
 						PlaySound(Game.MenuSoundID)
 						TimeReset(InputTimer,Time.RealNow)
@@ -195,7 +199,7 @@ repeat
 				endif
 				
 				if TimeGet(InputTimer,Time.RealNow) > 0	
-					if GetRawKeyPressed(KEY_S) = 1 or GetRawKeyPressed(KEY_DOWN) = 1 or (TimeGet(InputTimer,Time.RealNow) > 75 and GetRawJoystickY(1) > 0.5) or GetRawJoystickButtonPressed(1,joystickButtonCrossDown) = 1
+					if GetKeyPressed(KEY_S) or GetKeyPressed(KEY_DOWN) or (TimeGet(InputTimer,Time.RealNow) > 75 and GetJoyY() > 0.5) or GetJoyPressed(joystickButtonCrossDown)
 						SummaryEnterNameShiftDown(Game.Summary)
 						PlaySound(Game.MenuSoundID)
 						TimeReset(InputTimer,Time.RealNow)
@@ -203,7 +207,7 @@ repeat
 				endif
 				
 				if TimeGet(InputTimer,Time.RealNow) > 0
-					if GetRawKeyPressed(KEY_A) = 1 or GetRawKeyPressed(KEY_LEFT) = 1 or (TimeGet(InputTimer,Time.RealNow) > 75 and GetRawJoystickX(1) < -0.5) or GetRawJoystickButtonPressed(1,joystickButtonCrossLeft) = 1
+					if GetKeyPressed(KEY_A) or GetKeyPressed(KEY_LEFT) or (TimeGet(InputTimer,Time.RealNow) > 75 and GetJoyX() < -0.5) or GetJoyPressed(joystickButtonCrossLeft)
 						SummaryEnterNameShiftLeft(Game.Summary)
 						PlaySound(Game.MenuSoundID)
 						TimeReset(InputTimer,Time.RealNow)
@@ -211,17 +215,16 @@ repeat
 				endif
 				
 				if TimeGet(InputTimer,Time.RealNow) > 0	
-					if GetRawKeyPressed(KEY_D) = 1 or GetRawKeyPressed(KEY_RIGHT) = 1 or (TimeGet(InputTimer,Time.RealNow) > 75 and GetRawJoystickX(1) > 0.5) or GetRawJoystickButtonPressed(1,joystickButtonCrossRight) = 1
+					if GetKeyPressed(KEY_D) or GetKeyPressed(KEY_RIGHT)or (TimeGet(InputTimer,Time.RealNow) > 75 and GetJoyX() > 0.5) or GetJoyPressed(joystickButtonCrossRight)
 						SummaryEnterNameShiftRight(Game.Summary)				
 						PlaySound(Game.MenuSoundID)
 						TimeReset(InputTimer,Time.RealNow)
 					endif
 				endif
-			
 			endif
 			
 			if TimeGet(InputTimer,Time.RealNow) > 0
-				if GetRawKeyPressed(KEY_ENTER) = 1 or GetRawJoystickButtonPressed(1,joystickButtonA) = 1 or GetRawJoystickButtonPressed(1,joystickButtonStart) = 1
+				if GetKeyPressed(KEY_ENTER) or GetJoyPressed(joystickButtonA) or GetJoyPressed(joystickButtonStart)
 					PlaySound(Game.MenuSelectSoundID)
 					TimeReset(InputTimer,Time.RealNow)
 					
@@ -236,7 +239,7 @@ repeat
 		else
 			
 			if TimeGet(InputTimer,Time.RealNow) > 0
-				if GetRawKeyPressed(KEY_A) = 1 or GetRawKeyPressed(KEY_LEFT) = 1 or GetRawJoystickX(1) < -0.5 or GetRawJoystickButtonPressed(1,joystickButtonCrossLeft) = 1
+				if GetKeyPressed(KEY_A) or GetKeyPressed(KEY_LEFT) or GetJoyX() < -0.5 or GetJoyPressed(joystickButtonCrossLeft)
 					HighScoreShiftLeft(Game.HighScore)
 					PlaySound(Game.MenuSoundID)
 					TimeReset(InputTimer,Time.RealNow)
@@ -244,7 +247,7 @@ repeat
 			endif
 			
 			if TimeGet(InputTimer,Time.RealNow) > 0	
-				if GetRawKeyPressed(KEY_D) = 1 or GetRawKeyPressed(KEY_RIGHT) = 1 or GetRawJoystickX(1) > 0.5 or GetRawJoystickButtonPressed(1,joystickButtonCrossRight) = 1
+				if GetKeyPressed(KEY_D) or GetKeyPressed(KEY_RIGHT) or GetJoyX() > 0.5 or GetJoyPressed(joystickButtonCrossRight)
 					HighScoreShiftRight(Game.HighScore)				
 					PlaySound(Game.MenuSoundID)
 					TimeReset(InputTimer,Time.RealNow)
@@ -263,4 +266,4 @@ repeat
 	
 	Swap()
 	
-until GetRawKeyPressed(Key_Escape) = 1 or GetRawJoystickButtonPressed(1,joystickButtonBack) = 1
+until GetESCPressed() or GetJoyPressed(joystickButtonBack)

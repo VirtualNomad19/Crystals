@@ -23,6 +23,7 @@ firebase_config_path=
 url_scheme=
 deep_link=
 arcore=0
+app_icon_new_path=
 
 [ipa_settings]
 app_name=
@@ -47,6 +48,7 @@ prov_profile_path=
 commands_used=0
 dynamic_memory=0
 output_path=
+hide_branding=0
 
 [projectfiles]
 FILE_0=background.agc;-1
@@ -65,24 +67,26 @@ FILE_12=highscore.agc;-1
 FILE_13=main.agc;-1
 FILE_14=summary.agc;-1
 FILE_15=timer.agc;-1
+FILE_16=controls.agc;-1
 
 [files]
-FILE_NAME_0=0;block.agc;99;0
-FILE_NAME_1=0;def_game.agc;8;1
-FILE_NAME_2=0;def_joypad.agc;0;2
-FILE_NAME_3=0;def_keys.agc;1;3
-FILE_NAME_4=0;def_strings.agc;7;4
-FILE_NAME_5=0;field.agc;345;5
-FILE_NAME_6=0;file.agc;30;6
-FILE_NAME_7=1;game.agc;466;7
-FILE_NAME_8=0;highscore.agc;214;8
-FILE_NAME_9=0;main.agc;9;9
-FILE_NAME_10=0;summary.agc;90;10
-FILE_NAME_11=0;timer.agc;47;11
+FILE_NAME_0=0;block.agc;99;0;0
+FILE_NAME_1=0;def_game.agc;8;1;0
+FILE_NAME_2=0;def_joypad.agc;198;2;0
+FILE_NAME_3=0;def_keys.agc;1;3;0
+FILE_NAME_4=0;def_strings.agc;7;4;0
+FILE_NAME_5=0;field.agc;345;5;0
+FILE_NAME_6=0;file.agc;30;6;0
+FILE_NAME_7=0;game.agc;466;7;0
+FILE_NAME_8=0;highscore.agc;214;8;0
+FILE_NAME_9=0;main.agc;9;9;0
+FILE_NAME_10=0;summary.agc;90;10;0
+FILE_NAME_11=0;timer.agc;47;11;0
+FILE_NAME_12=1;controls.agc;0;12;0
 
 [watchvariables]
 watch_variable=@Version;
 
 [project]
 unfolded=0
-
+description=
