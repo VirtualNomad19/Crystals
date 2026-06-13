@@ -19,8 +19,10 @@ It will be a HTML version 1.0 on itch.io for playing in the browser.
 # Game & Goal
 
 Place the falling block through moving on the grid. Crystals will explode if their 3 or more of the same color in one horizontal, vertical or diagonal line. Cascades of explosions increase your score outcome. Every gem you destroys counts.
-The game ends if the crystals on grid reach the top line or their is no more palce for the falling block to start falling.
-On every 10. level random crystals rise from bottom. In addition to normal crystals their is a Rainbow and a Magic Crystal. Both have special attributes. So the Rainbow Crystal count as every existing color and is just a joker. While the magic crystal destroyes all crystal of the same color he lands on.
+
+The game ends if the crystals on grid reach the top line or there is no more place for the falling block to start falling.
+
+On every tenths level random crystals rise from bottom. In addition to normal crystals there is a Rainbow and a Magic Crystal. Both have special attributes. So the Rainbow Crystal count as every existing color and is just a joker. While the magic crystal destroyes all crystal of the same color he lands on.
 
 # Controls Keyboard
 
