@@ -1,21 +1,36 @@
 
 //----------------------------------------------------------------------
 // xbox buttons const
-//----------------------------------------------------------------------      
+//----------------------------------------------------------------------
 
-#CONSTANT joystickButtonA 1
-#CONSTANT joystickButtonB 2
-#CONSTANT joystickButtonX 3
-#CONSTANT joystickButtonY 4
-#CONSTANT joystickButtonLR 5
-#CONSTANT joystickButtonRR 6
-#CONSTANT joystickButtonBack 7
-#CONSTANT joystickButtonStart 8
-#CONSTANT joystickButtonPadLeft 9
-#CONSTANT joystickButtonPadRight 10
-#CONSTANT joystickButton 11
+#CONSTANT JoystickButtonA 1
+#CONSTANT JoystickButtonB 2
+#CONSTANT JoystickButtonX 3
+#CONSTANT JoystickButtonY 4
+#CONSTANT JoystickButtonLR 5
+#CONSTANT JoystickButtonRR 6
+#CONSTANT JoystickButtonBack 7
+#CONSTANT JoystickButtonStart 8
+#CONSTANT JoystickButtonPadLeft 9
+#CONSTANT JoystickButtonPadRight 10
+#CONSTANT JoystickButton 11
 
-#CONSTANT joystickButtonCrossLeft 13
-#CONSTANT joystickButtonCrossUp 14
-#CONSTANT joystickButtonCrossRight 15
-#CONSTANT joystickButtonCrossDown 16
+#CONSTANT JoystickButtonCrossLeft 13
+#CONSTANT JoystickButtonCrossUp 14
+#CONSTANT JoystickButtonCrossRight 15
+#CONSTANT JoystickButtonCrossDown 16
+
+//----------------------------------------------------------------------
+// 
+//----------------------------------------------------------------------
+
+function SetJoystickIndex(Game ref as TGame)
+	
+	CompleteRawJoystickDetection()
+	Game.JoystickIndex = 1
+	
+endfunction
+
+//----------------------------------------------------------------------
+// 
+//----------------------------------------------------------------------

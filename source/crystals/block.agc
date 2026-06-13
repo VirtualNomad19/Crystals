@@ -171,22 +171,29 @@ endfunction
 //
 //----------------------------------------------------------------------
 
-function MovebleBlockShuffle(MovebleBlock ref as TMovebleBlock,Now as integer)
+function MovebleBlockShuffle(MovebleBlock ref as TMovebleBlock,Alignment as integer)
 	
 	Crystal as TCrystal
 
-	Crystal = MovebleBlock.Block.Array[0]
-	MovebleBlock.Block.Array[0] = MovebleBlock.Block.Array[1]
-	MovebleBlock.Block.Array[1] = MovebleBlock.Block.Array[2]
-	MovebleBlock.Block.Array[2] = Crystal
-
+	if Alignment = 0
+		Crystal = MovebleBlock.Block.Array[2]
+		MovebleBlock.Block.Array[2] = MovebleBlock.Block.Array[1]
+		MovebleBlock.Block.Array[1] = MovebleBlock.Block.Array[0]
+		MovebleBlock.Block.Array[0] = Crystal
+	else
+		Crystal = MovebleBlock.Block.Array[0]
+		MovebleBlock.Block.Array[0] = MovebleBlock.Block.Array[1]
+		MovebleBlock.Block.Array[1] = MovebleBlock.Block.Array[2]
+		MovebleBlock.Block.Array[2] = Crystal
+	endif
+	
 endfunction
 
 //----------------------------------------------------------------------
 //
 //----------------------------------------------------------------------
 
-function MovebleBlockMoveLeft(MovebleBlock ref as TMovebleBlock,Field ref as TField,Now as integer)
+function MovebleBlockMoveLeft(MovebleBlock ref as TMovebleBlock,Field ref as TField)
 
 	if MovebleBlock.FieldPosition.x > 0
 		if MovebleBlock.FieldPosition.y+1 >= 0 and MovebleBlock.FieldPosition.y < Field.Array[0].Length
@@ -204,7 +211,7 @@ endfunction
 //
 //----------------------------------------------------------------------
 
-function MovebleBlockMoveRight(MovebleBlock ref as TMovebleBlock,Field ref as TField,Now as integer)
+function MovebleBlockMoveRight(MovebleBlock ref as TMovebleBlock,Field ref as TField)
 
 	if MovebleBlock.FieldPosition.x < Field.Array.Length
 		if MovebleBlock.FieldPosition.y+1 >= 0 and MovebleBlock.FieldPosition.y < Field.Array[0].Length

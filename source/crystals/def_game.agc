@@ -24,6 +24,9 @@
 #constant RAINBOWINDEX 9
 #constant MAGICINDEX 8
 
+#constant REACTIONTIME 80
+#constant ANIMATINGTIMEOUT 250
+
 //----------------------------------------------------------------------
 //
 //----------------------------------------------------------------------
@@ -205,10 +208,14 @@ type TGame
 	Sound as TSound
 	
 	FPS as integer
+	Time as TGlobalTime
+	InputTimer as TTime
+	JoystickIndex as integer
 	
 	IsDifficultySelect as integer
 	IsLost as integer
 	IsHighScore as integer
+	IsSummary as integer
 	IsRunning as integer
 	IsPause as integer
 	IsBlockMoving as integer
@@ -280,7 +287,9 @@ type TGame
 	
 	NextLevelSoundID as integer
 	ExplodeSoundID as integer
-	BlockSoundID as integer
+	BlockFallSoundID as integer
+	BlockDropSoundID as integer
+	BlockShuffleSoundID as integer
 	MenuSoundID as integer
 	MenuSelectSoundID as integer
 	ScoreSoundID as integer

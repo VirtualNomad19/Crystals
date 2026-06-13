@@ -3,13 +3,12 @@
 //
 //----------------------------------------------------------------------
 
-function GameCreate(Game ref as TGame,cx as float,cy as float,Now as integer)
+function GameCreate(Game ref as TGame,cx as float,cy as float)
 	
 	local fcx as float
 	local fcy as float
 	local fx as float
 	local fy as float
-	local File as TFilePath
 	local i as integer
 	
 	fcx = cx +(264-225)
@@ -18,17 +17,33 @@ function GameCreate(Game ref as TGame,cx as float,cy as float,Now as integer)
 	fx = cx +(264-225) -(298/2)
 	fy = cy +(463-400) -(634/2)
 	
+	Game.FPS = CreateText("")
+	SetTextPosition(Game.FPS,10,cy-200)
+	SetTextSize(Game.FPS,20)
+	
 	Game.IsRunning = FALSE
 	Game.IsPause = FALSE
+	Game.IsDifficultySelect = FALSE
+	Game.IsLost = FALSE
+	Game.IsHighScore = TRUE
+	Game.IsSummary = FALSE
+	Game.IsBlockMoving = FALSE
+	Game.IsFieldExploding = FALSE
+	Game.IsNewHighScore = FALSE
+	
+	SetJoystickIndex(Game)
 	
 	HighScoreCreate(Game.HighScore,fcx,fcy)
 	
+	TimeSet(Game.InputTimer,60,1)
+	TimeReset(Game.InputTimer,Game.Time.RealNow)
+	
 	TimeSet(Game.HighScore.AnimationTimer,MOVE_TIMESPAN,MOVE_RANGE)
-	TimeReset(Game.HighScore.AnimationTimer,Now)
+	TimeReset(Game.HighScore.AnimationTimer,Game.Time.RealNow)
 	TimeSet(Game.HighScore.VisibleTimer,5000,1)
-	TimeReset(Game.HighScore.VisibleTimer,Now)
+	TimeReset(Game.HighScore.VisibleTimer,Game.Time.RealNow)
 	TimeSet(Game.TimerSummeryText,250,1)
-	TimeReset(Game.TimerSummeryText,Now)
+	TimeReset(Game.TimerSummeryText,Game.Time.RealNow)
 	
 	ExplosionLoad(Game.Explosion)
 	
@@ -260,44 +275,8 @@ function GameCreate(Game ref as TGame,cx as float,cy as float,Now as integer)
 	SetTextSize(Game.TxtSummerySelectChar,42)
 	SetTextBold(Game.TxtSummerySelectChar,1)
 	SetTextAlignment(Game.TxtSummerySelectChar,1)
-
 	
-	File.Path = "/media/sfx"
-	File.Name = "snd4.wav"
-	
-	if FilePathSetAndCheck(File)
-		Game.NextLevelSoundID = LoadSound(File.Name)
-	endif
-	
-	File.Name = "snd2.wav"
-	
-	if FilePathSetAndCheck(File)
-		Game.ExplodeSoundID = LoadSound(File.Name)
-	endif
-	
-	File.Name = "snd6.wav"
-	
-	if FilePathSetAndCheck(File)
-		Game.BlockSoundID = LoadSound(File.Name)
-	endif
-	
-	File.Name = "snd3.wav"
-	
-	if FilePathSetAndCheck(File)
-		Game.MenuSoundID = LoadSound(File.Name)
-	endif
-	
-	File.Name = "snd5.wav"
-	
-	if FilePathSetAndCheck(File)
-		Game.MenuSelectSoundID = LoadSound(File.Name)
-	endif
-	
-	File.Name = "snd1.wav"
-	
-	if FilePathSetAndCheck(File)
-		Game.ScoreSoundID = LoadSound(File.Name)
-	endif
+	SoundInit(Game)
 
 endfunction
 
@@ -305,13 +284,13 @@ endfunction
 //
 //----------------------------------------------------------------------
 
-function GameInit(Game ref as TGame,Now as integer)
+function GameInit(Game ref as TGame)
 		
 	FieldClear(Game.Field)
 	BlockGenerate(Game.CurrentBlock.Block,Game.ProtoCrystalList,Game.Difficulty,Game.Level)
 	BlockGenerate(Game.NextBlock,Game.ProtoCrystalList,Game.Difficulty,Game.Level)
 	
-	MovebleBlockInit(Game.CurrentBlock,Now)
+	MovebleBlockInit(Game.CurrentBlock,Game.Time.RealNow)
 	
 	Game.Difficulty = 1
 	
@@ -341,13 +320,14 @@ function GameInit(Game ref as TGame,Now as integer)
 
 	Game.IsDifficultySelect = TRUE
 	Game.IsLost = FALSE
-	Game.IsRunning = FALSE
+	Game.IsSummary = FALSE
+	Game.IsHighScore = FALSE
 	Game.IsPause = FALSE
-	Game.IsBlockMoving = TRUE
+	Game.IsBlockMoving = FALSE
 	Game.IsFieldExploding = FALSE
 	Game.IsNewHighScore = FALSE
 	
-	ExplosionReset(Game.Explosion,Now)
+	ExplosionReset(Game.Explosion,Game.Time.RealNow)
 	
 endfunction
 
@@ -371,7 +351,7 @@ endfunction
 //
 //----------------------------------------------------------------------
 
-function GameDo(Game ref as TGame,Now as integer)
+function GameDo(Game ref as TGame)
 	
 	local CountSteps as integer
 	local GemCount as integer
@@ -384,8 +364,8 @@ function GameDo(Game ref as TGame,Now as integer)
 			if Game.IsBlockMoving = TRUE
 				
 				if MovebleBlockCollide(Game.CurrentBlock,Game.Field) = FALSE
-					CountSteps = MovebleBlockMoveDown(Game.CurrentBlock,Game.Field,Now)
-					TimeReset(Game.CurrentBlock.SetUpTime,Now)
+					CountSteps = MovebleBlockMoveDown(Game.CurrentBlock,Game.Field,Game.Time.RealNow)
+					TimeReset(Game.CurrentBlock.SetUpTime,Game.Time.RealNow)
 					if Game.CurrentBlock.IsFast
 						Game.CollectedScore = Game.CollectedScore + Ceil(CountSteps/10)
 					endif
@@ -393,11 +373,12 @@ function GameDo(Game ref as TGame,Now as integer)
 					if MovebleBlockOutOfBounds(Game.CurrentBlock) = TRUE
 						Game.IsRunning = FALSE
 						Game.IsLost = TRUE
+						Game.IsSummary = TRUE
 						Game.Summary.IsInit = TRUE
 						Game.HighScore.IsNew = TRUE
 					else
-						PlaySound(Game.BlockSoundID)
-						if TimeGet(Game.CurrentBlock.SetUpTime,Now) > 0						
+						SoundPlay(Game.BlockDropSoundID)
+						if TimeGet(Game.CurrentBlock.SetUpTime,Game.Time.RealNow) > 0
 							BlockCopyToField(Game.CurrentBlock,Game.Field)
 							Game.IsBlockMoving = FALSE
 						endif
@@ -416,12 +397,12 @@ function GameDo(Game ref as TGame,Now as integer)
 							if Game.NewLevel > Game.Level
 								Game.LastLevel = Game.Level
 								Game.Level = Game.NewLevel
-								PlaySound(Game.NextLevelSoundID)
+								SoundPlay(Game.NextLevelSoundID)
 								MovebleBlockSpeedSet(Game.CurrentBlock,Game.Level)
 							endif
-							ExplosionReset(Game.Explosion,Now)
+							ExplosionReset(Game.Explosion,Game.Time.RealNow)
 							Game.IsFieldExploding = TRUE
-							PlaySound(Game.ExplodeSoundID)
+							SoundPlay(Game.ExplodeSoundID)
 							Game.Cascade = Game.Cascade +1
 							if Game.Cascade > 1
 								ColorSet(Color,0,0,0,255)
@@ -432,7 +413,7 @@ function GameDo(Game ref as TGame,Now as integer)
 								SetTextColor(Game.TxtCollectedScore,Color.Red,Color.Green,Color.Blue,Color.Alpha)
 							endif
 							Game.CollectedScore = Game.CollectedScore * Game.Cascade + 0.1 * (GemCount*Game.Level)^2 * Game.Cascade
-							
+							SoundPlayPitched(Game.ScoreSoundID,1+Game.Cascade*0.1)
 						else
 						
 								if Game.Cascade > Game.HighestCascade
@@ -446,21 +427,25 @@ function GameDo(Game ref as TGame,Now as integer)
 								SetTextColor(Game.TxtCollectedScore,255,255,255,255)
 								
 								If Game.NewLevel > Game.LastLevel
-									for i = 1 to Game.NewLevel - Game.LastLevel
-										if FieldLineCreateBottom(Game.Field,Game.ProtoCrystalList,Game.Difficulty) = FALSE
-											Game.IsRunning = FALSE
-											Game.IsLost = TRUE
-											Game.Summary.IsInit = TRUE
-											Game.HighScore.IsNew = TRUE
-										else
-											Game.LastLevel = Game.NewLevel
-										endif
-									next i
+									if mod(Game.NewLevel,10) = 0
+										for i = 1 to Game.NewLevel - Game.LastLevel
+											if FieldLineCreateBottom(Game.Field,Game.ProtoCrystalList,Game.Difficulty) = FALSE
+												Game.IsRunning = FALSE
+												Game.IsLost = TRUE
+												Game.Summary.IsInit = TRUE
+												Game.HighScore.IsNew = TRUE
+											else
+												Game.LastLevel = Game.NewLevel
+											endif
+										next i
+									else
+										Game.LastLevel = Game.NewLevel
+									endif
 								else
 									
 									Game.CurrentBlock.Block = Game.NextBlock
 									BlockGenerate(Game.NextBlock,Game.ProtoCrystalList,Game.Difficulty,Game.Level)
-									MovebleBlockInit(Game.CurrentBlock,Now)
+									MovebleBlockInit(Game.CurrentBlock,Game.Time.RealNow)
 									Game.IsBlockMoving = TRUE
 									Game.CurrentBlock.IsFast = FALSE
 									MovebleBlockSpeedSet(Game.CurrentBlock,Game.Level)
@@ -470,7 +455,7 @@ function GameDo(Game ref as TGame,Now as integer)
 						endif
 					endif
 				else
-					if FieldExplosionAnimate(Game.Field,Game.Explosion,Now) = FALSE
+					if FieldExplosionAnimate(Game.Field,Game.Explosion,Game.Time.RealNow) = FALSE
 						Game.IsFieldExploding = FALSE
 					endif
 				endif
@@ -480,7 +465,7 @@ function GameDo(Game ref as TGame,Now as integer)
 	else
 		
 		if Game.IsLost = FALSE
-			HighScoreAnimate(Game.HighScore,Now)
+			HighScoreAnimate(Game.HighScore,Game.Time.RealNow)
 		else
 			if Game.Summary.IsInit = TRUE
 				HighScoreAnimateReset(Game.HighScore)
@@ -500,7 +485,7 @@ endfunction
 //
 //----------------------------------------------------------------------
 
-function GameDraw(Game ref as TGame,Now)
+function GameDraw(Game ref as TGame)
 	
 	local Text as integer
 	local x as float
@@ -622,13 +607,13 @@ function GameDraw(Game ref as TGame,Now)
 						DrawText(Game.TxtSummaryChar[i])
 					next i
 					
-					if TimeGet(Game.TimerSummeryText,Now) > 0
+					if TimeGet(Game.TimerSummeryText,Game.Time.RealNow) > 0
 						if Game.SwitchSummeryText = TRUE
 							Game.SwitchSummeryText = FALSE
 						else
 							Game.SwitchSummeryText = TRUE
 						endif
-						TimeReset(Game.TimerSummeryText,Now)
+						TimeReset(Game.TimerSummeryText,Game.Time.RealNow)
 					endif
 					
 					if Game.SwitchSummeryText = TRUE
