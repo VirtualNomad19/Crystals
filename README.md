@@ -61,6 +61,5 @@ Sound and music is disabled until files found.
 
 # Future Plans
 
-- Adding highscore switch to make it work in HTML.
 - Adding touch point areas for control when playing on mobil.
 - Adding online highscore to make it work on all devices globally.
