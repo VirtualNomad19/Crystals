@@ -12,9 +12,18 @@ function HighScoreCreate(HighScoreList ref as THighScoreList,fcx as float,fcy as
 	HighScoreList.IsInit = TRUE
 	HighScoreList.IsNew = TRUE
 	
-	if HighScoreLoad(HighScoreList) = FALSE
-		HighScoreInit(HighScoreList)
-		HighScoreSave(HighScoreList)
+	if Device$ = "windows"
+		if HighScoreLoad(HighScoreList) = FALSE
+			HighScoreInit(HighScoreList)
+			HighScoreSave(HighScoreList)
+		endif
+	endif
+	
+	if Device$ = "html5"
+		if HighScoreLoadFromCookie(HighScoreList) = FALSE
+			HighScoreInit(HighScoreList)
+			HighScoreSaveAsCookie(HighScoreList)
+		endif
 	endif
 	
 endfunction
@@ -108,19 +117,30 @@ function HighScoreAnimate(HighScoreList ref as THighScoreList,Now as integer)
 	if TimeGet(HighScoreList.AnimationTimer,Now)
 		TimeReset(HighScoreList.AnimationTimer,Now)
 		if HighScoreList.IsInit = TRUE
-			HighScoreLoad(HighScoreList)
+			
+			if Device$ = "windows"
+				HighScoreLoad(HighScoreList)
+			endif
+			
+			if Device$ = "html5"
+				HighScoreLoadFromCookie(HighScoreList)
+			endif
+			
 			if HighScoreList.IsNew = FALSE
 				inc HighScoreList.Table
 			endif
+			
 			if HighScoreList.Table > MAXHIGHSCORETABLE
 				HighScoreList.Table = 0
 			endif
+			
 			HighScoreAnimateReset(HighScoreList)
 			HighScoreSet(HighScoreList)
 			HighScoreList.IsInit = FALSE
 			HighScoreList.IsNew = FALSE
 			HighScoreList.IsAnimating = TRUE
 			TimeReset(HighScoreList.VisibleTimer,Now)
+			
 		else
 			if HighScoreList.IsAnimating = TRUE			
 				for i = 0 to HighScoreList.TxtFieldsScore.Length
@@ -200,20 +220,33 @@ endfunction Value
 //
 //----------------------------------------------------------------------
 
-function HighScoreTableInsertName(TableName as string,NewScore ref as THighScore)
+function HighScoreTableInsertName(TableIndex as integer,NewScore ref as THighScore)
 
 	local Value as integer
 	local Table as THighScore[]
-	
-	if HighScoreTableLoad(Table,TableName) = TRUE
-		Value = HighScoreCheckTable(Table,NewScore.Score)
-		if Value > -1
-			Table.Insert(NewScore,Value)
-			Table.Remove(Table.Length)
-			HighScoreTableSave(Table,TableName)
+
+	if Device$ = "windows"
+		if HighScoreTableLoad(Table,TableIndex) = TRUE
+			Value = HighScoreCheckTable(Table,NewScore.Score)
+			if Value > -1
+				Table.Insert(NewScore,Value)
+				Table.Remove(Table.Length)
+				HighScoreTableSave(Table,TableIndex)
+			endif
 		endif
 	endif
 	
+	if Device$ = "html5"
+		if HighScoreTableLoadFromCookie(Table,TableIndex) = TRUE
+			Value = HighScoreCheckTable(Table,NewScore.Score)
+			if Value > -1
+				Table.Insert(NewScore,Value)
+				Table.Remove(Table.Length)
+				HighScoreTableSaveAsCookie(Table,TableIndex)
+			endif
+		endif
+	endif
+				
 endfunction Value
 
 //----------------------------------------------------------------------
@@ -225,22 +258,22 @@ function HighScoreInsertName(HighScoreList ref as THighScoreList,Summary ref as 
 	SummaryHighscoreSetName(Summary)
 	
 	SummaryHighscoreSetScore(Summary,Summary.Difficulty)
-	if HighScoreTableInsertName(HighScoreGetTableName(Summary.Difficulty),Summary.HighScore) > -1
+	if HighScoreTableInsertName(Summary.Difficulty,Summary.HighScore) > -1
 		HighScoreList.Table = Summary.Difficulty
 	endif
 
 	SummaryHighscoreSetScore(Summary,TABLECASCADE)
-	if HighScoreTableInsertName(HighScoreGetTableName(TABLECASCADE),Summary.HighScore) > -1
+	if HighScoreTableInsertName(TABLECASCADE,Summary.HighScore) > -1
 		HighScoreList.Table = TABLECASCADE
 	endif
 	
 	SummaryHighscoreSetScore(Summary,TABLELEVEL)
-	if HighScoreTableInsertName(HighScoreGetTableName(TABLELEVEL),Summary.HighScore) > -1
+	if HighScoreTableInsertName(TABLELEVEL,Summary.HighScore) > -1
 		HighScoreList.Table = TABLELEVEL
 	endif
 	
 	SummaryHighscoreSetScore(Summary,TABLEGEMS)
-	if HighScoreTableInsertName(HighScoreGetTableName(TABLEGEMS),Summary.HighScore) > -1
+	if HighScoreTableInsertName(TABLEGEMS,Summary.HighScore) > -1
 		HighScoreList.Table = TABLEGEMS
 	endif
 	

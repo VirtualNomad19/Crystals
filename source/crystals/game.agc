@@ -18,7 +18,7 @@ function GameCreate(Game ref as TGame,cx as float,cy as float)
 	fy = cy +(463-400) -(634/2)
 	
 	Game.FPS = CreateText("")
-	SetTextPosition(Game.FPS,10,cy-200)
+	SetTextPosition(Game.FPS,10,cy+375)
 	SetTextSize(Game.FPS,20)
 	
 	Game.IsRunning = FALSE

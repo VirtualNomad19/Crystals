@@ -5,10 +5,6 @@
 // show all errors
 
 SetErrorMode(2)
-global debug
-debug = CreateText("")
-SetTextPosition(debug,10,vy-50)
-SetTextSize(debug,20)
 
 // set window properties
 SetWindowTitle("Cystals")
@@ -55,6 +51,7 @@ UseNewDefaultFonts(1)
 #include "def_joypad.agc"
 #include "def_game.agc"
 #include "def_strings.agc"
+#include "base64.agc"
 #include "color.agc"
 #include "file.agc"
 #include "timer.agc"
@@ -72,6 +69,11 @@ UseNewDefaultFonts(1)
 #include "workflow.agc"
 #include "controls.agc"
 #include "input.agc"
+
+global debug
+debug = CreateText("")
+SetTextPosition(debug,10,vy-50)
+SetTextSize(debug,20)
 
 local Game as TGame
 

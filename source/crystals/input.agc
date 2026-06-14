@@ -275,7 +275,7 @@ function GameInputDo(Game ref as TGame)
 			if CheckInputBackStatePressed(Game.JoystickIndex)
 				AbortGame(Game)
 			endif
-		
+			
 		else
 	
 			if Game.IsSummary = TRUE

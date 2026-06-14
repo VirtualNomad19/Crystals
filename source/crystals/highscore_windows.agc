@@ -42,12 +42,12 @@ endfunction Value
 //
 //----------------------------------------------------------------------
 
-function HighScoreTableSave(Table ref as THighScore[],TableName as string)
+function HighScoreTableSave(Table ref as THighScore[],TableIndex as integer)
 	
 	local File as TFilePath
 	
 	File.Path = "/media"
-	File.Name = TableName
+	File.Name = HighScoreGetTableName(TableIndex)
 	
 	if FilePathSet(File) = TRUE
 		Table.Save(File.Name)
@@ -64,7 +64,7 @@ function HighScoreSave(HighScoreList ref as THighScoreList)
 	local i as integer
 	
 	for i = 0 to MAXHIGHSCORETABLE
-		HighScoreTableSave(HighScoreList.Score[i],HighScoreGetTableName(i))
+		HighScoreTableSave(HighScoreList.Score[i],i)
 	next i
 
 endfunction
@@ -73,15 +73,17 @@ endfunction
 //
 //----------------------------------------------------------------------
 
-function HighScoreTableLoad(Table ref as THighScore[],TableName as string)
+function HighScoreTableLoad(Table ref as THighScore[],TableName as integer)
 	
 	local File as TFilePath
 	local Value as integer
 	
 	File.Path = "/media"
-	File.Name = TableName
+	File.Name = HighScoreGetTableName(TableName)
 	
 	Value = FALSE
+	
+	Table.Length = -1
 	
 	if FilePathSetAndCheck(File) = TRUE
 		Table.Load(File.Name)
@@ -108,11 +110,10 @@ function HighScoreLoad(HighScoreList ref as THighScoreList)
 	
 	for i = 0 to MAXHIGHSCORETABLE	
 		Table.Length = -1
-		if HighScoreTableLoad(Table,HighScoreGetTableName(i)) = TRUE
+		if HighScoreTableLoad(Table,i) = TRUE
 			HighScoreList.Score.Insert(Table)
 			Index = HighScoreList.Score.Length
 			if HighScoreList.Score[Index].Length <> MAXHIGHSCOREITEMS
-				//Value = FALSE
 				while HighScoreList.Score[Index].Length > MAXHIGHSCOREITEMS
 					HighScoreList.Score[Index].Remove(HighScoreList.Score[Index].Length)
 				endwhile

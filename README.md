@@ -6,7 +6,7 @@ Crystals is an old game played in ancient world of Phoenician from their merchan
 
 # Version
 
-Current Version is V.0.9991
+Current Version is V.0.9992
 
 # License
 
