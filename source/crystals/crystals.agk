@@ -74,16 +74,16 @@ FILE_21=timer.agc;-1
 FILE_22=workflow.agc;-1
 
 [files]
-FILE_NAME_0=0;base64.agc;44;0
+FILE_NAME_0=1;base64.agc;66;0
 FILE_NAME_1=0;def_game.agc;218;1
 FILE_NAME_2=0;game.agc;20;2
 FILE_NAME_3=0;highscore.agc;22;3
 FILE_NAME_4=0;highscore_html.agc;114;4
 FILE_NAME_5=0;highscore_windows.agc;112;5
 FILE_NAME_6=0;input.agc;277;6
-FILE_NAME_7=1;main.agc;78;7
+FILE_NAME_7=0;main.agc;78;7
 FILE_NAME_8=0;sound.agc;57;8
-FILE_NAME_9=0;workflow.agc;158;9
+FILE_NAME_9=0;workflow.agc;156;9
 
 [watchvariables]
 watch_variable=@Version;

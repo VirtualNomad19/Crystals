@@ -115,11 +115,12 @@ endfunction
 //
 //----------------------------------------------------------------------
 
-function DifficultySelect(Game ref as TGame)
+function DifficultySelect(Game ref as TGame,Now as integer)
 
 	SoundPlay(Game.MenuSelectSoundID)
 	Game.IsRunning = TRUE
 	Game.IsBlockMoving = TRUE
+	TimeReset(Game.CurrentBlock.MoveTime,Now)
 	Game.IsDifficultySelect = FALSE
 
 endfunction
@@ -178,7 +179,15 @@ function SummarySelect(Game ref as TGame)
 	if Game.IsNewHighScore = TRUE
 		HighScoreInsertName(Game.HighScore,Game.Summary)
 	endif
+	Game.IsRunning = FALSE
+	Game.IsPause = FALSE
+	Game.IsDifficultySelect = FALSE
 	Game.IsLost = FALSE
+	Game.IsHighScore = TRUE
+	Game.IsSummary = FALSE
+	Game.IsBlockMoving = FALSE
+	Game.IsFieldExploding = FALSE
+	Game.IsNewHighScore = FALSE
 
 endfunction
 

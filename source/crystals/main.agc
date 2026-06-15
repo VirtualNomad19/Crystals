@@ -28,9 +28,6 @@ SetOrientationAllowed(1,0,0,0)
 SetWindowSize(wx,wy,0)
 SetWindowAllowResize(1)
 
-dx = GetDeviceWidth()
-dy = GetDeviceHeight()
-vx = dx/(dy/vy)
 cx = vx/2
 cy = vy/2
 
@@ -85,7 +82,7 @@ repeat
 	
 	Game.Time.RealNow = GetMilliseconds()
 	
-	GameInputDo(Game)
+	GameInputDo(Game,Game.Time.RealNow)
 	GameDo(Game)
 	GameDraw(Game)
 	

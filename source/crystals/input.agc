@@ -17,11 +17,11 @@ function CheckInputRightStateDown(JoystickIndex as integer,InputTimer ref as TTi
 			endif
 		endif
 	
-		if GetDeviceBaseName() = "windows"
+		//if GetDeviceBaseName() = "windows"
 			if GetRawKeyState(KEY_D) = 1 or GetRawKeyState(KEY_RIGHT) = 1
 				Value = TRUE
 			endif
-		endif
+		//endif
 		
 	endif
 	
@@ -49,11 +49,11 @@ function CheckInputLeftStateDown(JoystickIndex as integer,InputTimer ref as TTim
 			endif
 		endif
 	
-		if GetDeviceBaseName() = "windows"
+		//if GetDeviceBaseName() = "windows"
 			if GetRawKeyState(KEY_A) = 1 or GetRawKeyState(KEY_LEFT) = 1
 				Value = TRUE
 			endif
-		endif
+		//endif
 		
 	endif
 	
@@ -81,11 +81,11 @@ function CheckInputUpStateDown(JoystickIndex as integer,InputTimer ref as TTime,
 			endif
 		endif
 	
-		if GetDeviceBaseName() = "windows"
+		//if GetDeviceBaseName() = "windows"
 			if GetRawKeyState(KEY_W) = 1 or GetRawKeyState(KEY_UP) = 1
 				Value = TRUE
 			endif
-		endif
+		//endif
 		
 	endif
 	
@@ -113,11 +113,11 @@ function CheckInputDownStateDown(JoystickIndex as integer,InputTimer ref as TTim
 			endif
 		endif
 	
-		if GetDeviceBaseName() = "windows"
+		//if GetDeviceBaseName() = "windows"
 			if GetRawKeyState(KEY_S) = 1 or GetRawKeyState(KEY_DOWN) = 1
 				Value = TRUE
 			endif
-		endif
+		//endif
 		
 	endif
 	
@@ -161,11 +161,11 @@ function CheckInputActionAlternateStatePressed(JoystickIndex as integer)
 		endif
 	endif
 
-	if GetDeviceBaseName() = "windows"
+	//if GetDeviceBaseName() = "windows"
 		if GetRawKeyPressed(KEY_UP) = 1
 			Value = TRUE
 		endif
-	endif
+	//endif
 
 endfunction Value
 
@@ -185,11 +185,11 @@ function CheckInputStartStatePressed(JoystickIndex as integer)
 		endif
 	endif
 
-	if GetDeviceBaseName() = "windows"
+	//if GetDeviceBaseName() = "windows"
 		if GetRawKeyPressed(KEY_ENTER) = 1
 			Value = TRUE
 		endif
-	endif
+	//endif
 	
 endfunction Value
 
@@ -221,7 +221,7 @@ endfunction Value
 //
 //----------------------------------------------------------------------
 
-function GameInputDo(Game ref as TGame)
+function GameInputDo(Game ref as TGame,Now as integer)
 	
 	if Game.IsRunning = TRUE
 		if CheckInputStartStatePressed(Game.JoystickIndex) = TRUE
@@ -269,7 +269,7 @@ function GameInputDo(Game ref as TGame)
 			endif
 			
 			if CheckInputStartStatePressed(Game.JoystickIndex) = TRUE
-				DifficultySelect(Game)
+				DifficultySelect(Game,Now)
 			endif
 			
 			if CheckInputBackStatePressed(Game.JoystickIndex)
@@ -278,12 +278,32 @@ function GameInputDo(Game ref as TGame)
 			
 		else
 	
+			if Game.IsHighScore = TRUE
+			
+				if CheckInputLeftStateDown(Game.JoystickIndex,Game.InputTimer,Game.Time) = TRUE
+					HighscoreSwitchShiftLeft(Game)
+				endif
+				
+				if CheckInputRightStateDown(Game.JoystickIndex,Game.InputTimer,Game.Time) = TRUE
+					HighscoreSwitchShiftRight(Game)
+				endif
+				
+				if CheckInputStartStatePressed(Game.JoystickIndex) = TRUE
+					StartGameInitialisation(Game)
+				endif
+				
+			endif
+			
 			if Game.IsSummary = TRUE
 				
 				if CheckInputStartStatePressed(Game.JoystickIndex) = TRUE
 					SummarySelect(Game)
 				endif
 				
+				if CheckInputBackStatePressed(Game.JoystickIndex)
+					AbortGame(Game)
+				endif
+					
 				if Game.IsNewHighScore = TRUE
 			
 					if CheckInputLeftStateDown(Game.JoystickIndex,Game.InputTimer,Game.Time) = TRUE
@@ -301,23 +321,10 @@ function GameInputDo(Game ref as TGame)
 					if CheckInputDownStateDown(Game.JoystickIndex,Game.InputTimer,Game.Time) = TRUE
 						EnterNameMoveDown(Game)
 					endif
+					
 				endif
-			
-			else
-			
-				if CheckInputLeftStateDown(Game.JoystickIndex,Game.InputTimer,Game.Time) = TRUE
-					HighscoreSwitchShiftLeft(Game)
-				endif
-				
-				if CheckInputRightStateDown(Game.JoystickIndex,Game.InputTimer,Game.Time) = TRUE
-					HighscoreSwitchShiftRight(Game)
-				endif
-				
-				if CheckInputStartStatePressed(Game.JoystickIndex) = TRUE
-					StartGameInitialisation(Game)
-				endif
-				
 			endif
+			
 		endif
 	endif
 		

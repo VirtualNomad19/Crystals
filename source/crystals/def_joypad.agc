@@ -26,8 +26,13 @@
 
 function SetJoystickIndex(Game ref as TGame)
 	
-	CompleteRawJoystickDetection()
+	local i as integer
+	
 	Game.JoystickIndex = 1
+	
+	for i = 8 to 1 step -1
+		if GetRawJoystickExists(i) then Game.JoystickIndex = i
+	next i
 	
 endfunction
 
